@@ -42,6 +42,52 @@
         }
     };
     f()();
+
+
+//    +function(){
+//        alert(a); //2的function
+//        a();  //2
+//        var a = function(){
+//            console.log(1);
+//        }
+//        function a(){
+//            console.log(2);
+//        }
+//        alert(a);  //1的function
+//        a();  //1
+//        var c = d = a;
+//    }()
+//    alert(d); //属于全局变量
+//    alert(c); //属于局部变量
+
+
+//    function *createIterator(items){
+//        items.forEach((item)=>{
+//            //语法错误
+//            yield item+1;
+//        })
+//    }
+//    var iter = createIterator([1,2,3]);
+
+    const s = 'hello';
+
+    const e = 'world';
+
+    const c = test`foor ${s} ${e} bar`;  //加了（）就是直接传的参数，没有第二个参数了
+
+    function test(strs, ...values){ //...扩展运算符
+
+        console.log(values); //arr
+
+        console.log(strs);　//arr
+
+    }
+
+    var arr = Array.from({length: 5}, (v, i) => i);
+    console.log(arr);
+    // [0, 1, 2, 3, 4]
+
+    console.log(Array(7)[0]);
 </script>
 </body>
 </html>
