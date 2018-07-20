@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>卷积神经网络</title>
+	
+</head>
+<body>
+	<img crossOrigin="anonymous" id="some_image" src="./timg.jpeg" />
+	<input type="button" value="识别" id="test">
+	<script type="text/javascript" src="./car.js"></script>
+	<script type="text/javascript" src="./convnet-min.js"></script>
+	<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		let layer_defs = [];
+		//出生的婴儿大脑
+		const net = new convnetjs.Net();
+		let imageList = [];
+		layer_defs.push({type:'input', out_sx:32, out_sy:32, out_depth:3}); // 
+		layer_defs.push({type:'conv', sx:5, filters:16, stride:1, pad:2, activation:'relu'});
+		
+		layer_defs.push({type:'pool', sx:2, stride:2});
+		// output Vol is of size 16x16x16 here
+		layer_defs.push({type:'conv', sx:5, filters:20, stride:1, pad:2, activation:'relu'});
+		// output Vol is of size 16x16x20 here
+		layer_defs.push({type:'pool', sx:2, stride:2});
+		// output Vol is of size 8x8x20 here
+		layer_defs.push({type:'conv', sx:5, filters:20, stride:1, pad:2, activation:'relu'});
+		// output Vol is of size 8x8x20 here
+		layer_defs.push({type:'pool', sx:2, stride:2});
+		// output Vol is of size 4x4x20 here
+		layer_defs.push({type:'softmax', num_classes:10});
+		// output Vol is of size 1x1x10 here
+
+		net.makeLayers(layer_defs);
+
+		var trainer = new convnetjs.SGDTrainer(net, {method: "adddelta",batch_size:4,learning_rate:0.01, l2_decay:0.001});
+		const loadData = (i)=>{
+			return function(){
+				return new Promise(function(resolve, reject){
+					let image = new Image();
+					image.crossOrigin = "anonymous";
+					image.src = carList[i].url;
+					image.onload = function(){
+						let vol = convnetjs.img_to_vol(image);
+						trainer.train(vol, i);
+						resolve();
+					}
+					// image.onerror = reject;
+				})
+			}
+		}
+		for(var i = 0; i < carList.length; i++){
+			imageList.push(loadData(i))
+		}
+
+		//trainer.train(x, 0); // train the network, specifying that x is class zero
+		$('#test').click(function(){
+			const carNameList = ['宝马','别克','法拉利','长城'];
+			Promise.all(imageList.map(imageContainer => imageContainer())).then(function(){
+				// helpful utility for converting images into Vols is included
+				var test = convnetjs.img_to_vol(document.getElementById('some_image'))
+				let result = Array.from(net.forward(test).w);
+				let max = Math.max.apply(Math, result);
+				console.log('可能是哪个汽车的logo: ', carNameList[result.indexOf(max)])
+			})
+		})
+	</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div id="some-id" data-test='123'></div>
+	<script type="text/javascript">
+		var MutationObserver = window.MutationObserver;
+		var target = document.querySelector('#some-id');
+		var observer = new MutationObserver(function(mutations){
+			mutations.forEach(function(mutation){
+				console.log(8);
+			})
+		})
+		var config = {
+			attributes: true
+		};
+		observer.observe(target, config);
+
+
+		setTimeout(function(){
+			console.log(15);
+		},0)
+		document.querySelector('#some-id').setAttribute('data-test','6');
+		new Promise(function(resolve){
+			console.log(1);
+			resolve();
+			console.log(2);
+		}).then(function(){
+			console.log(9);
+		});
+
+		new Promise(function(resolve){
+			console.log(3);
+			resolve();
+			console.log(4);
+		}).then(function(){
+			console.log(10);
+		});
+
+		function fn(){
+			return new Promise((resolve,reject)=>{
+				resolve(12);
+			})
+		}
+
+		function fn1(){
+			return new Promise((resolve,reject)=>{
+				resolve(14);
+			})
+		}
+		//async 是等待的，promise是顺序执行的，然后then最后执行，类似setTimeout 0，但是要比setTimeout 0先执行
+		(async function(){
+			console.log(5);
+			console.log(await fn()); //这里的微队列将后面的代码都压入队列中
+			console.log(13);
+		})();
+
+		(async function(){
+			console.log(await fn1()); //这里等待fn执行完成，才执行下一行
+		})();
+
+		//微队列是先进先出的，符合队列的规则，但是如果await 后面不是promise对象的话会有区别，会将后面的语句压入微队列中
+		(async function(){
+			console.log(6);
+			await console.log(7); //这里这么写会有问题，打乱了微队列的队形，8是所有的await中的前面，其他异步微队列的后面
+			console.log(11);
+		})();
+	</script>
+</body>
+</html>

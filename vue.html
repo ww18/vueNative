@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="app">
+        <div ref="test">{{test}}</div>
+        <button @click="handleClick">test</button>
+    </div>
+    <script src="https://cdn.bootcss.com/vue/2.5.17-beta.0/vue.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data(){
+            return {
+                test: 'start'
+            }
+        },
+        methods: {
+            handleClick(){
+                this.test = 'over';
+                console.log('得到的值',this.$refs.test.innerText);
+                this.$nextTick(()=>{
+                    console.log('第二次得到的值',this.$refs.test.innerText);
+                })
+            }
+        }
+    })
+</script>
+</body>
+</html>

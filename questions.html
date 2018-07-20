@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>每日一题</title>
+</head>
+<body>
+<script>
+    var yideng = {
+        bar: function(){
+            return this.baz
+        },
+        baz: 1
+    };
+    (function(){//这个相当于传入了一个方法
+        console.log(typeof arguments[0]()); //undefined
+    })(yideng.bar);
+
+    (function(){//这个就是传入了一个对象了
+        console.log(typeof arguments[0].bar());  //number
+    })(yideng);
+
+    function test(){
+        console.log('out');
+    }
+    (function(){
+        if(false){
+            function test(){
+                console.log('in');
+            }
+        }
+        function test(){
+            console.log('in');
+        }
+        test();
+    })();
+
+    var f = function(){
+        var arr = new Array(100);//arr未被引用会被垃圾回收
+        return function(){
+            eval('');
+        }
+    };
+    f()();
+</script>
+</body>
+</html>
