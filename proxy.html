@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+//    function extend(sup,base) {
+//        var descriptor = Object.getOwnPropertyDescriptor(
+//                base.prototype,"constructor"
+//        );
+//        base.prototype = Object.create(sup.prototype);
+//        var handler = {
+//            construct: function(target, args) {
+//                var obj = Object.create(base.prototype);
+//                this.apply(target,obj,args);
+//                return obj;
+//            },
+//            apply: function(target, that, args) {
+//                sup.apply(that,args);
+//                base.apply(that,args);
+//            }
+//        };
+//        var proxy = new Proxy(base,handler);
+//        descriptor.value = proxy;
+//        Object.defineProperty(base.prototype, "constructor", descriptor);
+//        return proxy;
+//    }
+//
+//    var Person = function(name){
+//        this.name = name
+//    };
+//
+//    var Boy = extend(Person, function(name, age) {
+//        this.age = age;
+//    });
+//
+//
+//
+//    Boy.prototype.sex = "M";
+//
+//    var Peter = new Boy("Peter", 13);
+//    var person = new Person();
+//    console.log(Peter.sex);  // "M"
+//    console.log(Peter.name); // "Peter"
+//    console.log(Peter.age);  // 13
+//    console.log(person);
+
+
+
+
+    //数据校验主程序
+    function validator(target,validator){
+        return new Proxy(target,{
+            _validator: validator,
+            set(target,key,value,proxy){
+                //判断当前对象是否有这个key值
+                if(target.hasOwnProperty(key)){
+                    //执行校验条件函数
+                    let va = this._validator[key];
+                    //是否符合条件
+                    if(!!va(value)){
+                        target[key] = value;
+//                        return Reflect.set(target,key,value,proxy)
+                    }else{
+                        throw Error(`不能设置${key}为${value}`)
+                    }
+                }
+                else{
+                    throw Error(`${key} 不存在`)
+                }
+            }
+        })
+    }
+
+    //校验条件函数
+    const personValidators = {
+        name(val){
+            return typeof val === 'string'
+        },
+        age(val){
+            return typeof val === 'number'  && val > 18
+        }
+    }
+
+    //类
+    class Person{
+        constructor(name,age){
+            this.name = name;
+            this.age = age;
+            return validator(this,personValidators)
+        }
+    }
+
+    const person = new Person('xiaoming',30);
+
+    console.log(person);  // {name: 'xiaoming' , age: 30}
+
+    person.name=38; // 设置失败，因为name需要是一个字符串
+    person.age=38;  // 设置成功
+</script>
+</body>
+</html>

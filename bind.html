@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bind</title>
+</head>
+<body>
+<script>
+    Function.prototype.bind = function (oThis) {
+        if (typeof this !== "function") {
+            // closest thing possible to the ECMAScript 5 internal IsCallable function
+            throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+        }
+
+        var aArgs = Array.prototype.slice.call(arguments, 1),
+            fToBind = this,
+            fNOP = function () {},
+            fBound = function () {
+                return fToBind.apply(this instanceof fNOP && oThis
+                                ? this
+                                : oThis || window,
+                        aArgs.concat(Array.prototype.slice.call(arguments)));
+            };
+
+        fNOP.prototype = this.prototype;
+        fBound.prototype = new fNOP();
+
+        return fBound;
+    };
+
+    var o = {name:'wenwen'};
+    var obj = {
+        name: 'li',
+        say: function(){
+            console.log(this.name);
+        }
+    };
+    var say = obj.say.bind(o);
+    say();
+    obj.say.call(o);
+
+    function foo(){
+        this.b = 100;
+        this.fun = function(){}
+        return this.a;
+    }
+    foo.prototype.nfn = function(){}
+    var func = foo.bind({});//这里要传入一个obj，不能为空，为空的话this会变成window，还可以实现继承,属性和原型都可以继承
+    foo.prototype.test = function(){}
+    func.prototype.name = 'wenwen1';
+    func.prototype.b = 300;
+    console.log(new func);
+    console.log(new foo);
+    func();
+
+
+    console.log((new say).name);
+
+    var person = {
+        name: 'Nicholas',
+        friends: ['shelby','court','van']
+    };
+    function create(o){
+        function F(){}
+        F.prototype = o;
+        return new F();
+    }
+    var anotherPerson = Object.create(person);
+    anotherPerson.name = 'Greg';
+    anotherPerson.friends.push('Rob');
+    console.log(person);
+    console.log(anotherPerson);
+
+</script>
+</body>
+</html>
